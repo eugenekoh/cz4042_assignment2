@@ -126,5 +126,6 @@ if __name__ == '__main__':
 
     # gradient clipping
     model = WordRNN(vocab_size)
+    model.model_name += "_clip"
     logger.debug(f'training {model.model_name}')
     train(model, train_ds, test_ds, clip_value=2)
