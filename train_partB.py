@@ -8,7 +8,6 @@ from data_processing import read_data_chars, read_data_words
 from models import CharCNN, CharRNN, WordRNN, WordCNN, Char2RNN, Word2RNN
 from graphing import History, plot_loss, plot_accuracies
 
-ONE_HOT_SIZE = 256
 EPOCHS = 2
 LR = 0.01
 DROP_RATE = 0.4

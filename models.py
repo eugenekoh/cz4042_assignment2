@@ -91,7 +91,6 @@ class WordCNN(Model):
 
     def call(self, x, drop_rate=0.5):
         # forward
-        # x = tf.one_hot(x, one_hot_size)
         x = self.embedding(x)
         x = x[..., tf.newaxis]
         x = self.conv1(x)
@@ -108,10 +107,10 @@ class WordCNN(Model):
 class WordRNN(Model):
     def __init__(self, vocab_size, drop_out=False, rnn_layer=layers.GRU):
         super(WordRNN, self).__init__()
-        self.embedding = layers.Embedding(input_dim=vocab_size, output_dim=20, input_length=100)
         self.drop_out = drop_out
         self.model_name = f"word_{rnn_layer(1).name}{'_dropout' if self.drop_out else ''}"
 
+        self.embedding = layers.Embedding(input_dim=vocab_size, output_dim=20, input_length=100)
         self.rnn1 = rnn_layer(units=20)
         self.dense = layers.Dense(units=15, activation='softmax')
 
