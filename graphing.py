@@ -18,7 +18,7 @@ def plot_loss(history):
     train_loss = history.train_loss
     val_loss = history.test_loss
 
-    # prep figure
+    plt.figure()
     plt.grid()
 
     # add data points
@@ -31,7 +31,7 @@ def plot_loss(history):
     plt.xlabel('Epoch')
     plt.legend()
 
-    file_path = IMG_PATH / "partA"/ history.model_name
+    file_path = IMG_PATH / (history.model_name + "_loss")
     plt.savefig(file_path)
 
 
@@ -40,7 +40,7 @@ def plot_accuracies(history):
     train_acc = history.train_acc
     test_acc = history.test_acc
 
-    # prep figure
+    plt.figure()
     plt.grid()
 
     # add data points
@@ -53,26 +53,7 @@ def plot_accuracies(history):
     plt.xlabel('Epoch')
     plt.legend()
 
-    file_path = IMG_PATH / "partA" / history.model_name
+    file_path = IMG_PATH / (history.model_name + "_accuracy")
     plt.savefig(file_path)
 
 
-def plot_train_loss_test_acc(history):
-    train_loss = history.train_loss
-    test_acc = history.test_acc
-
-    # prep figure
-    plt.grid()
-
-    # add data points
-    plt.plot(train_loss, label='Train Loss')
-    plt.plot(test_acc, label='Test Accuracy')
-
-    # labels
-    plt.title('Training Loss and Testing Accuracy against Epochs')
-    plt.ylabel('Loss/Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend()
-
-    file_path = IMG_PATH / "partB" / history.model_name
-    plt.savefig(file_path)

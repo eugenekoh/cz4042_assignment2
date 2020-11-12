@@ -2,9 +2,11 @@ from loguru import logger
 import tensorflow as tf
 import csv
 
-from data_processing import read_data_chars
-from models import CharCNN, CharRNN
-from graphing import plot_train_loss_test_acc, History
+from tensorflow.keras import layers
+
+from data_processing import read_data_chars, read_data_words
+from models import CharCNN, CharRNN, WordRNN, WordCNN, Char2RNN, Word2RNN
+from graphing import History, plot_loss, plot_accuracies
 
 ONE_HOT_SIZE = 256
 EPOCHS = 2
@@ -18,10 +20,12 @@ logger.add("logs/file_{time}.log")
 
 
 # Build model
-def train(model, train_ds, test_ds):
+def train(model, train_ds, test_ds, clip_value=None):
     # Choose optimizer and loss function for training
     loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
-    optimizer = tf.keras.optimizers.SGD(learning_rate=LR)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=LR)
+    if clip_value:
+        optimizer = tf.keras.optimizers.Adam(learning_rate=LR, clipvalue=2)
 
     # Select metrics to measure the loss and the accuracy of the model.
     # These metrics accumulate the values over epochs and then print the overall result.
@@ -49,7 +53,7 @@ def train(model, train_ds, test_ds):
         test_loss(t_loss)
         test_accuracy(label, out)
 
-    history = History(model.model_name())
+    history = History(model.model_name)
     for epoch in range(EPOCHS):
         # Reset the metrics at the start of the next epoch
         train_loss.reset_states()
@@ -74,7 +78,11 @@ def train(model, train_ds, test_ds):
     # save results
     with open('results/test_accuracies.csv', 'a') as f:
         writer = csv.writer(f)
-        writer.writerow([history.model_name, max(history.test_acc)])
+        writer.writerow([history.model_name, float(max(history.test_acc))])
+
+    # plot graphs
+    plot_loss(history)
+    plot_accuracies(history)
 
     return history
 
@@ -82,10 +90,41 @@ def train(model, train_ds, test_ds):
 if __name__ == '__main__':
     logger.debug('retrieving character data')
     train_ds, test_ds = read_data_chars()
-
-    models = [CharCNN(), CharCNN(drop_out=True), CharRNN(), CharRNN(drop_out=True)]
-
+    models = [
+        CharCNN(),
+        CharCNN(drop_out=True),
+        CharRNN(),
+        CharRNN(drop_out=True),
+        CharRNN(rnn_layer=layers.SimpleRNN),
+        CharRNN(rnn_layer=layers.LSTM),
+        Char2RNN(),
+    ]
     for model in models:
-        logger.debug(f'training {model.model_name()}')
-        history = train(model, train_ds, test_ds)
-        plot_train_loss_test_acc(history)
+        logger.debug(f'training {model.model_name}')
+        train(model, train_ds, test_ds)
+
+    # gradient clipping
+    model = CharRNN()
+    model.model_name += "_clip"
+    logger.debug(f'training {model.model_name}')
+    train(model, train_ds, test_ds, clip_value=2)
+
+    logger.debug('retrieving word data')
+    train_ds, test_ds, vocab_size = read_data_words()
+    models = [
+        WordCNN(vocab_size),
+        WordCNN(vocab_size, drop_out=True),
+        WordRNN(vocab_size),
+        WordRNN(vocab_size, drop_out=True),
+        WordRNN(vocab_size, rnn_layer=layers.SimpleRNN),
+        WordRNN(vocab_size, rnn_layer=layers.LSTM),
+        Word2RNN(vocab_size),
+    ]
+    for model in models:
+        logger.debug(f'training {model.model_name}')
+        train(model, train_ds, test_ds)
+
+    # gradient clipping
+    model = WordRNN(vocab_size)
+    logger.debug(f'training {model.model_name}')
+    train(model, train_ds, test_ds, clip_value=2)
