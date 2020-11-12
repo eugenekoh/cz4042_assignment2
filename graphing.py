@@ -33,6 +33,7 @@ def plot_loss(history):
 
     file_path = IMG_PATH / (history.model_name + "_loss")
     plt.savefig(file_path)
+    plt.close()
 
 
 # plot the training accuracies and test accuracies against the learning epochs
@@ -55,5 +56,6 @@ def plot_accuracies(history):
 
     file_path = IMG_PATH / (history.model_name + "_accuracy")
     plt.savefig(file_path)
+    plt.close()
 
 
