@@ -22,9 +22,9 @@ logger.add("logs/file_{time}.log")
 def train(model, train_ds, test_ds, clip_value=None):
     # Choose optimizer and loss function for training
     loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
-    optimizer = tf.keras.optimizers.Adam(learning_rate=LR)
+    optimizer = tf.keras.optimizers.SGD(learning_rate=LR)
     if clip_value:
-        optimizer = tf.keras.optimizers.Adam(learning_rate=LR, clipvalue=2)
+        optimizer = tf.keras.optimizers.SGD(learning_rate=LR, clipvalue=2)
 
     # Select metrics to measure the loss and the accuracy of the model.
     # These metrics accumulate the values over epochs and then print the overall result.
