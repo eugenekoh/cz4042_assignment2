@@ -1,8 +1,10 @@
-from pathlib import Path
+import time
 
 import matplotlib.pyplot as plt
 
-IMG_PATH = Path('results/graphs')
+from constants import IMG_PATH, EPOCHS
+
+IMG_PATH.mkdir(parents=True, exist_ok=True)
 
 
 class History:
@@ -12,6 +14,14 @@ class History:
         self.train_acc = []
         self.test_loss = []
         self.test_acc = []
+
+    def start(self):
+        self.start_time = time.time()
+
+    def end(self):
+        total_duration = time.time() - self.start_time
+        avg_time = total_duration / EPOCHS
+        return avg_time
 
 
 def plot_loss(history):
@@ -31,7 +41,7 @@ def plot_loss(history):
     plt.xlabel('Epoch')
     plt.legend()
 
-    file_path = IMG_PATH / (history.model_name + "_loss")
+    file_path = IMG_PATH / ("loss_" + history.model_name)
     plt.savefig(file_path)
     plt.close()
 
@@ -54,8 +64,6 @@ def plot_accuracies(history):
     plt.xlabel('Epoch')
     plt.legend()
 
-    file_path = IMG_PATH / (history.model_name + "_accuracy")
+    file_path = IMG_PATH / ("accuracy_" + history.model_name)
     plt.savefig(file_path)
     plt.close()
-
-
